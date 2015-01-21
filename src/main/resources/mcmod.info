@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "tconstructlogger",
+    "name": "Tinkers' Construct Logger",
+    "description": "Dumps Tinkers' Construct Tool Material data to a CSV file",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authors": ["Choonster"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

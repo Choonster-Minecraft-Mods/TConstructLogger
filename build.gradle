@@ -1,3 +1,5 @@
+// This script was pieced together from the Tinkers' Construct and Opis build scripts
+
 buildscript {
     repositories {
         mavenCentral()
@@ -15,10 +17,24 @@ buildscript {
     }
 }
 
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
 repositories {
+    mavenCentral()
     maven {
-        name "DVS1 Maven FS'"
+        name 'CB Maven FS'
+        url "http://chickenbones.net/maven/"
+    }
+    maven {
+        name 'DVS1 Maven FS'
         url 'http://dvs1.progwml6.com/files/maven'
+    }
+    maven {
+        name 'ForgeFS'
+        url 'http://files.minecraftforge.net/maven'
     }
 }
 
@@ -36,7 +52,8 @@ configFile.withReader {
 }
 
 dependencies {
-	compile "tconstruct:TConstruct:${config.minecraft_version}-${config.tconstruct_version}:lib"
+    shade 'net.sf.opencsv:opencsv:2.3'
+	compile "tconstruct:TConstruct:${config.minecraft_version}-${config.tconstruct_version}:deobf"
 }
 
 // Finds and sets version data
@@ -74,6 +91,18 @@ minecraft {
 
 archivesBaseName = "TConstructLogger"
 
+// some crazy stuff to make sure the chicken stuff is in the mods folder...
+// because it wont work otherwise... because FML doesnt laod coremods from the classpath
+task copyCoreMods(type: Copy, dependsOn: "extractUserDev") {
+    from configurations.compile
+    include "**/*Mobius*.jar"
+    //include "**/*Chicken*.jar", "**/*NotEnoughItems*.jar"
+    //exclude "**/CodeChickenLib*" // because CCC downloads it anyways.. -_-
+    into file(minecraft.runDir + "/../mods") // paralell to the assets dir
+}
+tasks.setupDevWorkspace.dependsOn copyCoreMods
+tasks.setupDecompWorkspace.dependsOn copyCoreMods
+
 processResources
 {
     // this will ensure that this task is redone when the versions change.
@@ -91,6 +120,14 @@ processResources
     // copy everything else, thats not the mcmod.info
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+jar {
+    configurations.shade.each { dep ->
+        from(project.zipTree(dep)){
+            exclude 'META-INF', 'META-INF/**'
+        }
     }
 }
 
